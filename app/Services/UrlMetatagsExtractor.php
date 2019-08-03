@@ -97,7 +97,7 @@ class UrlMetatagsExtractor
      */
     public function extractTitle($metaTags)
     {
-        $title = $metaTags->general->title;
+        $title = $this->generalTitleExists($metaTags) ? $metaTags->general->title : null;
 
         $this->setTitle($title);
 
@@ -112,7 +112,7 @@ class UrlMetatagsExtractor
      */
     public function extractDescription($metaTags)
     {
-        $description = $this->openGraphDescriptionExists($metaTags) ? $metaTags->openGraph->description : ($this->generalDescriptionExists($metaTags) ? $metaTags->general->description : null);
+        $description = $this->openGraphDescriptionExists($metaTags) ? (is_array($metaTags->openGraph->description) ? $metaTags->openGraph->description[0] : $metaTags->openGraph->description) : ($this->generalDescriptionExists($metaTags) ? $metaTags->general->description : null);
 
         $this->setDescription($description);
 
@@ -148,6 +148,20 @@ class UrlMetatagsExtractor
     }
 
     /**
+     * Check if URL has a general title.
+     * 
+     * @param Object $metaTags
+     * @return boolean
+     */
+    public function generalTitleExists($metaTags)
+    {
+        if (empty($metaTags->general->title)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Extract and set image.
      * 
      * @param Object $metaTags
@@ -155,7 +169,7 @@ class UrlMetatagsExtractor
      */
     public function extractImage($metaTags)
     {
-        $image = $this->openGraphImageExists($metaTags) ? $metaTags->openGraph->image->url : null;
+        $image = $this->openGraphImageExists($metaTags) ? (is_array($metaTags->openGraph->image) ? $metaTags->openGraph->image[0]->url : $metaTags->openGraph->image->url) : null;
 
         $this->setImage($image);
 
@@ -170,7 +184,8 @@ class UrlMetatagsExtractor
      */
     public function openGraphImageExists($metaTags)
     {
-        if (empty($metaTags->openGraph->image->url)) {
+        // if (empty($metaTags->openGraph->image->url)) {
+        if (empty($metaTags->openGraph->image)) {
             return false;
         }
         return true;

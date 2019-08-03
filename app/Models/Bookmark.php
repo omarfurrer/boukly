@@ -55,13 +55,23 @@ class Bookmark extends Model
         'metatags' => 'array'
     ];
 
-    // /**
-    //  * A bookmark belongs to many users.
-    //  *
-    //  * @return BelongsToMany
-    //  */
-    // public function users()
-    // {
-    //     return $this->belongsToMany('App\User')->withPivot('is_private')->withTimestamps();
-    // }
+    /**
+     * A bookmark belongs to many users.
+     *
+     * @return BelongsToMany
+     */
+    public function users()
+    {
+        return $this->belongsToMany('App\User')->withPivot('is_private')->withTimestamps();
+    }
+
+    /**
+     * A bookmark has many tags.
+     *
+     * @return BelongsToMany
+     */
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class)->withPivot('user_id')->withTimestamps();
+    }
 }

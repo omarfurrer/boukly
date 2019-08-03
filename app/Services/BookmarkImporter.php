@@ -3,120 +3,157 @@
 namespace App\Services;
 
 use App\models\Bookmark;
-use App\Services\UrlAvailabilityChecker;
-use App\Services\UrlMetatagsExtractor;
-use App\Services\UrlAdultDetector;
+use App\Services\BookmarkAvailabilityHandler;
+use App\Services\BookmarkMetatagsHandler;
+use App\Services\BookmarkAdultHandler;
+use App\Services\BookmarkUserPrivacyHandler;
+use App\Services\BookmarkAdultTagHandler;
+use App\Services\BookmarkDomainTagHandler;
 use App\Traits\DomainExtractorTrait;
-use Carbon\Carbon;
-use Storage;
+use App\Services\BookmarkCreator;
+use App\Services\BookmarkUserAssociator;
+use Illuminate\Database\QueryException;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
+use App\User;
 
 class BookmarkImporter
 {
     use DomainExtractorTrait;
 
     /**
-     * @var UrlMetatagsExtractor 
+     * @var BookmarkUserAssociator 
      */
-    protected $urlMetatagsExtractor;
+    protected $bookmarkUserAssociator;
 
     /**
-     * @var UrlAdultDetector 
+     * @var BookmarkCreator 
      */
-    protected $urlAdultDetector;
+    protected $bookmarkCreator;
 
     /**
-     * @var UrlAvailabilityChecker 
+     * @var BookmarkMetatagsHandler 
      */
-    protected $urlAvailabilityCheker;
+    protected $bookmarkMetatagsHandler;
+
+    /**
+     * @var BookmarkAdultHandler 
+     */
+    protected $bookmarkAdultHandler;
+
+    /**
+     * @var BookmarkAvailabilityHandler 
+     */
+    protected $bookmarkAvailabilityHandler;
+
+    /**
+     * @var BookmarkUserPrivacyHandler 
+     */
+    protected $bookmarkUserPrivacyHandler;
+
+    /**
+     * @var BookmarkAdultTagHandler 
+     */
+    protected $bookmarkAdultTagHandler;
+    /**
+     * @var BookmarkDomainTagHandler 
+     */
+    protected $bookmarkDomainTagHandler;
 
     /**
      * BookmarkImporter Constructor.
      * 
-     * @param UrlAvailabilityChecker $urlAvailabilityCheker
-     * @param UrlMetatagsExtractor $urlMetatagsExtractor
-     * @param UrlAdultDetector $urlAdultDetector
+     * @param BookmarkUserPrivacyHandler $bookmarkUserPrivacyHandler
+     * @param BookmarkMetatagsHandler $bookmarkMetatagsHandler
+     * @param BookmarkUserAssociator $bookmarkUserAssociator
+     * @param BookmarkCreator $bookmarkCreator
+     * @param BookmarkAvailabilityHandler $bookmarkAvailabilityHandler
+     * @param BookmarkAdultHandler $bookmarkAdultHandler
+     * @param BookmarkAdultTagHandler $bookmarkAdultTagHandler
+     * @param BookmarkDomainTagHandler $bookmarkDomainTagHandler
      */
-    public function __construct(UrlAvailabilityChecker $urlAvailabilityCheker, UrlMetatagsExtractor $urlMetatagsExtractor, UrlAdultDetector $urlAdultDetector)
-    {
-        $this->urlAvailabilityCheker = $urlAvailabilityCheker;
-        $this->urlMetatagsExtractor = $urlMetatagsExtractor;
-        $this->urlAdultDetector = $urlAdultDetector;
+    public function __construct(
+        BookmarkUserPrivacyHandler $bookmarkUserPrivacyHandler,
+        BookmarkMetatagsHandler $bookmarkMetatagsHandler,
+        BookmarkUserAssociator $bookmarkUserAssociator,
+        BookmarkCreator $bookmarkCreator,
+        BookmarkAvailabilityHandler $bookmarkAvailabilityHandler,
+        BookmarkAdultHandler $bookmarkAdultHandler,
+        BookmarkAdultTagHandler $bookmarkAdultTagHandler,
+        BookmarkDomainTagHandler $bookmarkDomainTagHandler
+    ) {
+        $this->bookmarkUserPrivacyHandler = $bookmarkUserPrivacyHandler;
+        $this->bookmarkMetatagsHandler = $bookmarkMetatagsHandler;
+        $this->bookmarkUserAssociator = $bookmarkUserAssociator;
+        $this->bookmarkCreator = $bookmarkCreator;
+        $this->bookmarkAvailabilityHandler = $bookmarkAvailabilityHandler;
+        $this->bookmarkAdultHandler = $bookmarkAdultHandler;
+        $this->bookmarkAdultTagHandler = $bookmarkAdultTagHandler;
+        $this->bookmarkDomainTagHandler = $bookmarkDomainTagHandler;
     }
 
     public function importFromTextFile($name)
     {
+        $user = User::find(1);
         $urls = array_filter(file(storage_path("/app/{$name}"), FILE_IGNORE_NEW_LINES));
 
         foreach ($urls as $url) {
-            $bookmarks[] =  $this->import($url);
+            $bookmarks[] =  $this->import($url, $user);
         }
 
         return $bookmarks;
     }
 
-    public function multiImport($urls)
+    public function multiImport($urls, User $user)
     {
         foreach ($urls as $url) {
-            $bookmarks[] =  $this->import($url);
+            $bookmarks[] =  $this->import($url, $user);
         }
 
         return $bookmarks;
     }
 
-    public function import($url)
+    public function import($url, User $user)
     {
-        //   "url",
-        // "domain",
 
-        // "title",
-        // "description",
-        // "image",
-        // "metatags"
-
-        // "is_dead",
-        // "http_code",
-        // "http_message",
-        // "last_availability_check_at",
-
-        // "is_adult",
         try {
+            $isNew = false;
             // check if it exists
             $bookmark = Bookmark::where("url", $url)->first();
-            if ($bookmark) {
+            if (!$bookmark) {
+                $isNew = true;
+                $bookmark = $this->bookmarkCreator->create($url);
+                $bookmark = $this->bookmarkAvailabilityHandler->handle($bookmark);
+                $bookmark = $this->bookmarkMetatagsHandler->handle($bookmark);
+                $bookmark = $this->bookmarkAdultHandler->handle($bookmark); // TODO make sure its available first ?
+            }
+
+            if ($user->bookmarks()->where('bookmarks.id', $bookmark->id)->first()) {
                 return false;
             }
-            print $url;
 
-            $data = [
-                "url" => $url,
-                "domain" => $this->extractDomain($url),
-                "is_dead" => false
-            ];
+            $bookmark = $this->bookmarkUserAssociator->associate($bookmark, $user);
+            $bookmark = $this->bookmarkUserPrivacyHandler->handle($bookmark, $user);
 
-            // check availability
-            $isAvailable = $this->urlAvailabilityCheker->check($url);
-            if (!$isAvailable) {
-                $data['is_dead'] = true;
+            // handle tags
+            $bookmark = $this->bookmarkAdultTagHandler->handle($bookmark, $user);
+            $bookmark = $this->bookmarkDomainTagHandler->handle($bookmark, $user);
+
+            return $bookmark;
+        } catch (QueryException | ProcessFailedException | ProcessTimedOutException $e) {
+            //remove bookmark in case of error to perserve data consistency
+            if ($isNew) {
+                $bookmark->delete();
             }
-
-            $data['http_code'] = $this->urlAvailabilityCheker->getCode();
-            $data['http_message'] = $this->urlAvailabilityCheker->getMessage();
-            $data['last_availability_check_at'] = Carbon::now();
-
-            if ($isAvailable) {
-                // get meta tags
-                $data['metatags'] = $this->urlMetatagsExtractor->extract($url);
-                $data['title'] = $this->urlMetatagsExtractor->getTitle();
-                $data['description'] = $this->urlMetatagsExtractor->getDescription();
-                $data['image'] = $this->urlMetatagsExtractor->getImage();
-            }
-
-            // get adult
-            $data['is_adult'] = $this->urlAdultDetector->detect($url);
-
-            return Bookmark::create($data);
+            //log it
+            return $e->getMessage();
         } catch (Exception $e) {
-            return $e;
+            //remove bookmark in case of error to perserve data consistency
+            if ($isNew) {
+                $bookmark->delete();
+            }
+            //log it
+            return $e->getMessage();
         }
     }
 }

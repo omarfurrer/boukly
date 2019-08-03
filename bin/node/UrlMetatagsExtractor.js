@@ -13,7 +13,8 @@ var userAgents = require('./userAgents.json');
         jar: request.jar(), // Cookie jar
         headers: {
             'User-Agent': helpers.getRandomUserAgent(userAgents)
-        }
+        },
+        timeout: 50000
     }, function (error, metadata) {
         console.log(JSON.stringify(metadata));
     });

@@ -1,6 +1,5 @@
 <?php
 
-use App\models\Bookmark;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,8 +13,7 @@ use App\models\Bookmark;
 */
 
 Route::get('/', function () {
-    $bookmarks = Bookmark::all();
-    return view('home', ["bookmarks" => $bookmarks]);
+    return view('landing');
 });
 
 Auth::routes();

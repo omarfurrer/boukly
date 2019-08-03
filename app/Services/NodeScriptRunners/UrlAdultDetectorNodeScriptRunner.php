@@ -2,7 +2,8 @@
 
 namespace App\Services\NodeScriptRunners;
 
-class UrlAdultDetectorNodeScriptRunner extends AbstractNodeScriptRunner {
+class UrlAdultDetectorNodeScriptRunner extends AbstractNodeScriptRunner
+{
 
     /**
      * Constructor.
@@ -33,5 +34,4 @@ class UrlAdultDetectorNodeScriptRunner extends AbstractNodeScriptRunner {
             'url' => 0
         ];
     }
-
 }

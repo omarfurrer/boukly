@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\models\Bookmark;
+use Auth;
 
 class HomeController extends Controller
 {
@@ -23,6 +25,10 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        // $bookmarks = Auth::user()->bookmarks()->orderBy('id', 'desc')->get();
+        $bookmarks = Auth::user()->bookmarks()->where('is_adult', 1)->orderBy('id', 'desc')->get();
+        // $bookmarks = Auth::user()->bookmarks()->where('is_adult', 0)->orderBy('id', 'desc')->get();
+
+        return view('home', ["bookmarks" => $bookmarks]);
     }
 }

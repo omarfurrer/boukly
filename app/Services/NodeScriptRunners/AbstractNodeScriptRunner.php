@@ -149,6 +149,7 @@ abstract class AbstractNodeScriptRunner
         }
 
         $this->rawResult = $this->process->getOutput();
+
         $this->result = json_decode($this->rawResult);
 
         return $this->result;
@@ -199,7 +200,7 @@ abstract class AbstractNodeScriptRunner
     public function addArrayValuesToString($string, $array)
     {
         foreach ($array as $value) {
-            $string .= ' ' . (is_bool($value) ? ($value ? "true" : "false") : $value);
+            $string .= ' ' . (is_bool($value) ? ($value ? "true" : "false") : '"' . $value . '"');
         }
         return $string;
     }

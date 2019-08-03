@@ -11,7 +11,10 @@ const request = require('request');
         message: '',
     };
 
-    request(url, {json: true}, (err, response, body) => {
+    request(url, {
+        json: true,
+        timeout: 50000
+    }, (err, response, body) => {
         if (err) {
             result.error = true;
         } else {
