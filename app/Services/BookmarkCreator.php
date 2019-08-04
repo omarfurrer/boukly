@@ -22,9 +22,9 @@ class BookmarkCreator
      * @param String $url
      * @return Bookmark
      */
-    public function create($url)
+    public function create($url, $forceAdult = true)
     {
         $domain = $this->extractDomain($url);
-        return Bookmark::create(["url" => $url, "domain" => $domain]);
+        return Bookmark::create(["url" => $url, "domain" => $domain, 'is_adult' => $forceAdult]);
     }
 }

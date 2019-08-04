@@ -16,6 +16,7 @@ use Illuminate\Database\QueryException;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use App\User;
+use App\Jobs\DownloadBookmarkInformation;
 
 class BookmarkImporter
 {
@@ -118,26 +119,32 @@ class BookmarkImporter
 
         try {
             $isNew = false;
+
             // check if it exists
             $bookmark = Bookmark::where("url", $url)->first();
             if (!$bookmark) {
                 $isNew = true;
                 $bookmark = $this->bookmarkCreator->create($url);
-                $bookmark = $this->bookmarkAvailabilityHandler->handle($bookmark);
-                $bookmark = $this->bookmarkMetatagsHandler->handle($bookmark);
-                $bookmark = $this->bookmarkAdultHandler->handle($bookmark); // TODO make sure its available first ?
             }
 
             if ($user->bookmarks()->where('bookmarks.id', $bookmark->id)->first()) {
                 return false;
             }
 
+            // Associate bookmark to user
+            // force private for now
             $bookmark = $this->bookmarkUserAssociator->associate($bookmark, $user);
-            $bookmark = $this->bookmarkUserPrivacyHandler->handle($bookmark, $user);
 
-            // handle tags
-            $bookmark = $this->bookmarkAdultTagHandler->handle($bookmark, $user);
-            $bookmark = $this->bookmarkDomainTagHandler->handle($bookmark, $user);
+            if ($isNew) {
+                // dispatch job to save time
+                DownloadBookmarkInformation::dispatch($bookmark, $user);
+            } else {
+                // handle privacy
+                $bookmark = $this->bookmarkUserPrivacyHandler->handle($bookmark, $user);
+                // handle tags
+                $bookmark = $this->bookmarkAdultTagHandler->handle($bookmark, $user);
+                $bookmark = $this->bookmarkDomainTagHandler->handle($bookmark, $user);
+            }
 
             return $bookmark;
         } catch (QueryException | ProcessFailedException | ProcessTimedOutException $e) {
