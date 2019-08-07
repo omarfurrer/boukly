@@ -26,8 +26,8 @@ class HomeController extends Controller
     public function index()
     {
         // $bookmarks = Auth::user()->bookmarks()->orderBy('id', 'desc')->get();
-        // $bookmarks = Auth::user()->bookmarks()->where('is_adult', 1)->orderBy('id', 'desc')->get();
-        $bookmarks = Auth::user()->bookmarks()->where('is_adult', 1)->orderBy('id', 'desc')->limit(10)->get();
+        $bookmarks = Auth::user()->bookmarks()->where('is_adult', 1)->orderBy('id', 'desc')->get();
+        // $bookmarks = Auth::user()->bookmarks()->where('is_adult', 1)->orderBy('id', 'desc')->limit(10)->get();
         // $bookmarks = Auth::user()->bookmarks()->where('is_adult', 0)->orderBy('id', 'desc')->get();
 
         return view('home', ["bookmarks" => $bookmarks]);

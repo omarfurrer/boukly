@@ -57,6 +57,6 @@ class User extends Authenticatable
      */
     public function tags()
     {
-        return $this->belongsToMany(Tag::class, 'bookmark_tag')->withPivot('bookmark_id')->withTimestamps();
+        return $this->belongsToMany(Tag::class, 'bookmark_tag')->groupBy(['id','name']);
     }
 }
