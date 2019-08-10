@@ -16,6 +16,14 @@ Route::get('/', function () {
     return view('landing');
 });
 
-Auth::routes();
+Route::post('/register', 'Auth\RegisterController@register')->name('register');
+// Route::post('/oauth/token', '\Laravel\Passport\Http\Controllers\AccessTokenController@issueToken')->name('passport.token');
 
-Route::get('/home', 'HomeController@index')->name('home');
+// Auth::routes();
+
+
+Route::group(['prefix' => '/'], function () {
+    Route::get('/{path?}', function () {
+        return view('app');
+    })->where('path', '.*');
+});

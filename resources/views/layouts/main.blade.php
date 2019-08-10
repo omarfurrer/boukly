@@ -18,7 +18,7 @@
 
     <!-- Scripts -->
     <script
-        src="{{ asset('js/app.js') }}"
+        src="{{ asset('js/main.js') }}"
         defer
     ></script>
 
@@ -34,7 +34,7 @@
 
     <!-- Styles -->
     <link
-        href="{{ asset('css/app.css') }}"
+        href="{{ asset('css/main.css') }}"
         rel="stylesheet"
     >
 </head>
@@ -66,7 +66,7 @@
                     <li class="nav-item active">
                         <a
                             class="nav-link"
-                            href="{{route('login')}}"
+                            href="/login"
                         >Login</a>
                     </li>
                 </ul>

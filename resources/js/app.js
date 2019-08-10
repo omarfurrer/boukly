@@ -5,21 +5,35 @@
  */
 
 require('./bootstrap');
+import Vue from 'vue';
+import Vuetify from 'vuetify';
+import 'vuetify/dist/vuetify.min.css';
+import '@fortawesome/fontawesome-free/css/all.css';
+import 'material-design-icons-iconfont/dist/material-design-icons.css';
+import VueMq from 'vue-mq';
 
-window.Vue = require('vue');
+import router from './router/index.js';
+import store from './store/index.js';
+import mixin from './mixin/index.js';
 
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
+import defaultTheme from './vuetify/themes/defaultTheme';
+import defaultBreakpoints from './vuetify/breakpoints/defaultBreakpoints';
+import fontawesomeIcons from './vuetify/icons/fontawesomeIcons';
 
-// const files = require.context('./', true, /\.vue$/i);
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default));
+Vue.prototype.$eventHub = new Vue();
 
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+Vue.use(Vuetify, {
+    theme: defaultTheme,
+    iconfont: 'md',
+    // iconfont: 'fa',
+    // icons: fontawesomeIcons,
+});
+
+Vue.use(VueMq, {
+    breakpoints: defaultBreakpoints,
+});
+
+Vue.mixin(mixin);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -29,4 +43,6 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 
 const app = new Vue({
     el: '#app',
+    router,
+    store,
 });

@@ -1,17 +1,8 @@
+import _ENV from './env';
+import AuthHelper from './helpers/AuthHelper';
+import AppHelper from './helpers/AppHelper';
+
 window._ = require('lodash');
-
-/**
- * We'll load jQuery and the Bootstrap jQuery plugin which provides support
- * for JavaScript based Bootstrap features such as modals and tabs. This
- * code may be modified to fit the specific needs of your application.
- */
-
-try {
-    window.Popper = require('popper.js').default;
-    window.$ = window.jQuery = require('jquery');
-
-    require('bootstrap');
-} catch (e) {}
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -22,6 +13,10 @@ try {
 window.axios = require('axios');
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+window._ENV = _ENV;
+window.AuthHelper = AuthHelper;
+window.AppHelper = AppHelper;
 
 /**
  * Next we will register the CSRF Token as a common header with Axios so that
@@ -36,6 +31,41 @@ if (token) {
 } else {
     console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
 }
+
+axios.interceptors.request.use((config) => {
+    const authToken = AuthHelper.getAccessToken();
+
+    if (authToken) {
+        config.headers.common['Authorization'] = `Bearer ${authToken}`;
+    }
+
+    return config;
+}, (error) => {
+    return Promise.reject(error);
+});
+
+axios.interceptors.response.use((response) => {
+
+    if (response.data.status === 0 && response.data.code == '401') {
+        AuthHelper.clearSession();
+        window.location = '/login?error=You have been logged out due to inactivity. Please log in.';
+    }
+
+    if (response.data.status === 0 && response.data.code == '403') {
+        toastr.error(response.data.errors[0], 'Error!');
+        response.data.data = [];
+    }
+
+    return response.data;
+}, (error) => {
+
+    if (error.response.status === 401 && error.response.config.url != '/oauth/token') {
+        AuthHelper.clearSession();
+        window.location = '/login?error=You have been logged out due to inactivity. Please log in.';
+    }
+
+    return Promise.reject(error);
+});
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

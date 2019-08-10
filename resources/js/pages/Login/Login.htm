@@ -1,0 +1,67 @@
+<v-container
+    fluid
+    fill-height
+>
+    <v-layout
+        align-center
+        justify-center
+    >
+        <v-flex
+            xs12
+            sm8
+            md4
+        >
+            <v-card class="elevation-12">
+                <v-toolbar
+                    dark
+                    color="primary"
+                >
+                    <v-toolbar-title>Login To Your Dashboard</v-toolbar-title>
+                    <v-spacer></v-spacer>
+                </v-toolbar>
+                <v-form
+                    ref="loginForm"
+                    v-model="isLoginFormValid"
+                    @submit.prevent="login"
+                >
+                    <v-card-text>
+                        <v-text-field
+                            prepend-icon="person"
+                            name="email"
+                            label="Email"
+                            type="text"
+                            v-model="user.email"
+                            :rules="emailRules"
+                        ></v-text-field>
+                        <v-text-field
+                            prepend-icon="lock"
+                            name="password"
+                            label="Password"
+                            type="password"
+                            v-model="user.password"
+                            :rules="passwordRules"
+                        ></v-text-field>
+                        <v-alert
+                            :value="true"
+                            outline
+                            color="error"
+                            icon="error"
+                            class="mb-3"
+                            v-if="error"
+                        >{{ error }}</v-alert>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            type="submit"
+                            @click="login"
+                            :loading="isBusy"
+                            :disabled="isBusy"
+                            color="primary"
+                        >Login</v-btn>
+                    </v-card-actions>
+                </v-form>
+            </v-card>
+        </v-flex>
+    </v-layout>
+</v-container>
