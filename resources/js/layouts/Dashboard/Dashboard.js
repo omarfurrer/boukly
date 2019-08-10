@@ -9,7 +9,9 @@ export default {
     },
     data() {
 
-        return {}
+        return {
+
+        }
 
     },
     computed: {
@@ -23,6 +25,9 @@ export default {
         logout() {
             this.$store.dispatch('logout');
             this.$router.push('/login');
+        },
+        toggleLeftBar() {
+            this.$eventHub.$emit('toggle-left-bar');
         }
     }
 

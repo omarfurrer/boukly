@@ -1,1 +1,68 @@
-<div>heya</div>
+<v-container
+    text-xs-center
+    fluid
+    pa-0
+    fill-height
+>
+    <v-layout
+        row
+        fill-height
+        justify-start
+    >
+        <v-flex
+            md3
+            lg2
+        >
+            <v-navigation-drawer
+                :value="$vuetify.breakpoint.mdAndUp || isLeftBarOpened"
+                :stateless="$vuetify.breakpoint.mdAndUp"
+                :absolute="$vuetify.breakpoint.smAndDown"
+                @input="leftBarOpened"
+            >
+
+                <v-toolbar
+                    height="auto"
+                    flat
+                >
+                    <v-list>
+                        <v-list-tile>
+                            <v-list-tile-title class="title">
+                                Tags
+                            </v-list-tile-title>
+                        </v-list-tile>
+                    </v-list>
+                </v-toolbar>
+
+                <v-divider></v-divider>
+
+                <v-list
+                    dense
+                    class="pt-0"
+                >
+                    <v-list-tile
+                        v-for="tag in tags"
+                        :key="tag.id"
+                        @click=""
+                    >
+                        <v-list-tile-content>
+                            <v-list-tile-title>{{ tag.name }}</v-list-tile-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                </v-list>
+            </v-navigation-drawer>
+        </v-flex>
+
+        <v-flex
+            xs12
+            md9
+            lg10
+        >
+            <v-card
+                dark
+                color="primary"
+            >
+                <v-card-text class="px-0">12</v-card-text>
+            </v-card>
+        </v-flex>
+    </v-layout>
+</v-container>

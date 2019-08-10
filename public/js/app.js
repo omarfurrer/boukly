@@ -2060,6 +2060,9 @@ __webpack_require__.r(__webpack_exports__);
     logout: function logout() {
       this.$store.dispatch('logout');
       this.$router.push('/login');
+    },
+    toggleLeftBar: function toggleLeftBar() {
+      this.$eventHub.$emit('toggle-left-bar');
     }
   }
 });
@@ -2102,11 +2105,56 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
-    return {};
+    return {
+      isLeftBarOpened: false,
+      tags: [{
+        id: 1,
+        name: 'youtube.com'
+      }, {
+        id: 2,
+        name: 'microsoft.com'
+      }, {
+        id: 3,
+        name: 'yahoo.com'
+      }, {
+        id: 4,
+        name: 'laravel.com'
+      }, {
+        id: 5,
+        name: 'work'
+      }, {
+        id: 6,
+        name: 'videos'
+      }, {
+        id: 7,
+        name: 'games'
+      }, {
+        id: 8,
+        name: 'Teacher'
+      }]
+    };
   },
   computed: {},
+  created: function created() {
+    this.$eventHub.$on('open-left-bar', this.openLeftBar);
+    this.$eventHub.$on('close-left-bar', this.closeLeftBar);
+    this.$eventHub.$on('toggle-left-bar', this.toggleLeftBar);
+  },
   mounted: function mounted() {},
-  methods: {}
+  methods: {
+    openLeftBar: function openLeftBar() {
+      this.isLeftBarOpened = true;
+    },
+    closeLeftBar: function closeLeftBar() {
+      this.isLeftBarOpened = false;
+    },
+    toggleLeftBar: function toggleLeftBar() {
+      this.isLeftBarOpened = !this.isLeftBarOpened;
+    },
+    leftBarOpened: function leftBarOpened(isOpened) {
+      this.isLeftBarOpened = isOpened;
+    }
+  }
 });
 
 /***/ }),
@@ -21700,6 +21748,11 @@ var render = function() {
         "v-toolbar",
         { attrs: { dark: "", color: "primary" } },
         [
+          _c("v-toolbar-side-icon", {
+            staticClass: "hidden-md-and-up",
+            on: { click: _vm.toggleLeftBar }
+          }),
+          _vm._v(" "),
           _c("v-toolbar-title", [_vm._v("Boukly")]),
           _vm._v(" "),
           _c("v-spacer"),
@@ -21785,7 +21838,112 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", [_vm._v("heya")])
+  return _c(
+    "v-container",
+    {
+      attrs: { "text-xs-center": "", fluid: "", "pa-0": "", "fill-height": "" }
+    },
+    [
+      _c(
+        "v-layout",
+        { attrs: { row: "", "fill-height": "", "justify-start": "" } },
+        [
+          _c(
+            "v-flex",
+            { attrs: { md3: "", lg2: "" } },
+            [
+              _c(
+                "v-navigation-drawer",
+                {
+                  attrs: {
+                    value:
+                      _vm.$vuetify.breakpoint.mdAndUp || _vm.isLeftBarOpened,
+                    stateless: _vm.$vuetify.breakpoint.mdAndUp,
+                    absolute: _vm.$vuetify.breakpoint.smAndDown
+                  },
+                  on: { input: _vm.leftBarOpened }
+                },
+                [
+                  _c(
+                    "v-toolbar",
+                    { attrs: { height: "auto", flat: "" } },
+                    [
+                      _c(
+                        "v-list",
+                        [
+                          _c(
+                            "v-list-tile",
+                            [
+                              _c(
+                                "v-list-tile-title",
+                                { staticClass: "title" },
+                                [
+                                  _vm._v(
+                                    "\r\n                                Tags\r\n                            "
+                                  )
+                                ]
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c("v-divider"),
+                  _vm._v(" "),
+                  _c(
+                    "v-list",
+                    { staticClass: "pt-0", attrs: { dense: "" } },
+                    _vm._l(_vm.tags, function(tag) {
+                      return _c(
+                        "v-list-tile",
+                        { key: tag.id, on: { click: function($event) {} } },
+                        [
+                          _c(
+                            "v-list-tile-content",
+                            [
+                              _c("v-list-tile-title", [
+                                _vm._v(_vm._s(tag.name))
+                              ])
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    }),
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "v-flex",
+            { attrs: { xs12: "", md9: "", lg10: "" } },
+            [
+              _c(
+                "v-card",
+                { attrs: { dark: "", color: "primary" } },
+                [_c("v-card-text", { staticClass: "px-0" }, [_vm._v("12")])],
+                1
+              )
+            ],
+            1
+          )
+        ],
+        1
+      )
+    ],
+    1
+  )
 }
 var staticRenderFns = []
 render._withStripped = true
