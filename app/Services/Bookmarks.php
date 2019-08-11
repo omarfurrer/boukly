@@ -34,4 +34,16 @@ class Bookmarks
 
         return false;
     }
+
+    /**
+     * Get a user's bookmarks.
+     *
+     * @param User $user
+     * @return boolean
+     */
+    public function getUserBookmarks(User $user, $perPage = 100, $page = 1)
+    {
+        $bookmarks = $user->bookmarks()->paginate($perPage, ['*'], 'page', $page);
+        return $bookmarks;
+    }
 }

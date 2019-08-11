@@ -23,6 +23,8 @@
                 <v-toolbar
                     height="auto"
                     flat
+                    color="orange lighten-2"
+                    dark
                 >
                     <v-list>
                         <v-list-tile>
@@ -57,12 +59,38 @@
             md9
             lg10
         >
-            <v-card
-                dark
-                color="primary"
-            >
-                <v-card-text class="px-0">12</v-card-text>
-            </v-card>
+            <v-container grid-list-lg>
+                <v-layout
+                    row
+                    wrap
+                >
+                    <v-flex
+                        v-for="bookmark in bookmarks"
+                        :key="bookmark.id"
+                        xs12
+                        sm12
+                        md4
+                    >
+                        <v-card height="300">
+                            <a :href="bookmark.url">
+                                <v-img
+                                    :src="bookmark.image ? bookmark.image : '/images/placeholder-400x200-secondary.png'"
+                                    height="200"
+                                ></v-img>
+                            </a>
+
+                            <v-card-title primary-title>
+                                <div>
+                                    <a :href="bookmark.url">
+                                        <p class="subheading mb-0">{{bookmark.title ? bookmark.title : 'No Title'}}</p>
+                                    </a>
+                                </div>
+                            </v-card-title>
+                        </v-card>
+                    </v-flex>
+                </v-layout>
+                <infinite-loading @infinite="getBookmarks" ></infinite-loading>
+            </v-container>
         </v-flex>
     </v-layout>
 </v-container>

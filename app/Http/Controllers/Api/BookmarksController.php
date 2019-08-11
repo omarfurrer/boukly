@@ -7,6 +7,7 @@ use App\Services\BookmarkImporter;
 use App\Services\Bookmarks;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Auth;
 
 class BookmarksController extends Controller
 {
@@ -68,5 +69,17 @@ class BookmarksController extends Controller
         $exists = $this->bookmarksService->checkUserHasBookmark($url, $request->user());
 
         return response()->json(['exists' => $exists]);
+    }
+
+    /**
+     * Get a user's bookmarks.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function get(Request $request)
+    {
+        $bookmarks = $this->bookmarksService->getUserBookmarks(Auth::user(), 100, $request->page ? $request->page : 1);
+        return response()->json(['bookmarks' => $bookmarks]);
     }
 }

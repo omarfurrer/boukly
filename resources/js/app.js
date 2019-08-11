@@ -20,6 +20,8 @@ import defaultTheme from './vuetify/themes/defaultTheme';
 import defaultBreakpoints from './vuetify/breakpoints/defaultBreakpoints';
 import fontawesomeIcons from './vuetify/icons/fontawesomeIcons';
 
+import InfiniteLoading from 'vue-infinite-loading';
+
 Vue.prototype.$eventHub = new Vue();
 
 Vue.use(Vuetify, {
@@ -34,6 +36,8 @@ Vue.use(VueMq, {
 });
 
 Vue.mixin(mixin);
+
+Vue.use(InfiniteLoading);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
