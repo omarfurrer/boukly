@@ -24,13 +24,20 @@
                     height="auto"
                     flat
                     color="orange lighten-2"
-                    dark
                 >
                     <v-list>
-                        <v-list-tile>
+                        <v-list-tile class="secondary--text">
                             <v-list-tile-title class="title">
-                                Tags
+                                Tags <span v-if="filter.tags.length > 0" @click="clearTagFilters" class="white--text body-2 clear-tag-filters-button">Clear All</span>
                             </v-list-tile-title>
+                        </v-list-tile>
+                        <v-list-tile>
+                            <v-text-field
+                                single-line
+                                solo
+                                prepend-inner-icon="search"
+                                v-model="tagSearch"
+                            ></v-text-field>
                         </v-list-tile>
                     </v-list>
                 </v-toolbar>
@@ -42,10 +49,10 @@
                     class="pt-0"
                 >
                     <v-list-tile
-                        v-for="tag in tags"
+                        v-for="tag in filteredTags"
                         :key="tag.id"
                         @click="toggleTagFilter(tag.name)"
-                        :class="{'primary' : isTagFilterSelected(tag.name)}"
+                        :class="{'primary white--text' : isTagFilterSelected(tag.name)}"
                     >
                         <v-list-tile-content>
                             <v-list-tile-title>{{ tag.name }}</v-list-tile-title>

@@ -4,52 +4,21 @@ export default {
 
         return {
             isLeftBarOpened: false,
-            tags: [
-                // {
-                //         id: 1,
-                //         name: 'youtube.com'
-                //     },
-                //     {
-                //         id: 2,
-                //         name: 'microsoft.com'
-                //     },
-                //     {
-                //         id: 3,
-                //         name: 'yahoo.com'
-                //     },
-                //     {
-                //         id: 4,
-                //         name: 'laravel.com'
-                //     },
-                //     {
-                //         id: 5,
-                //         name: 'work'
-                //     },
-                //     {
-                //         id: 6,
-                //         name: 'videos'
-                //     },
-                //     {
-                //         id: 7,
-                //         name: 'games'
-                //     },
-                //     {
-                //         id: 8,
-                //         name: 'Teacher'
-                //     },
-            ],
+            tags: [],
             bookmarks: [],
             isGetBookmarksBusy: false,
             page: 1,
             filter: {
                 tags: []
-            }
+            },
+            tagSearch: ''
         }
 
     },
     computed: {
-
-
+        filteredTags() {
+            return this.tags.filter(tag => tag.name.toLowerCase().indexOf(this.tagSearch.toLowerCase()) >= 0);
+        }
     },
     created() {
         this.$eventHub.$on('open-left-bar', this.openLeftBar);
@@ -96,6 +65,10 @@ export default {
             return this.filter.tags.findIndex((el) => {
                 return el == tag
             }) != -1;
+        },
+        clearTagFilters() {
+            this.filter.tags = [];
+            this.refreshForFilters();
         },
         getBookmarks() {
             this.isGetBookmarksBusy = true;

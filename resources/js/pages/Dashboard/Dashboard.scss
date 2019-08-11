@@ -4,6 +4,16 @@
     overflow-y: hidden;
 }
 
+.v-list__tile__title {
+    font-size: 15px;
+}
+
+.clear-tag-filters-button {
+    float: right;
+    line-height: 26px;
+    cursor: pointer;
+}
+
 a {
     color: #424242;
     text-decoration: none;

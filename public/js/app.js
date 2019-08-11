@@ -2115,48 +2115,25 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
   data: function data() {
     return {
       isLeftBarOpened: false,
-      tags: [// {
-        //         id: 1,
-        //         name: 'youtube.com'
-        //     },
-        //     {
-        //         id: 2,
-        //         name: 'microsoft.com'
-        //     },
-        //     {
-        //         id: 3,
-        //         name: 'yahoo.com'
-        //     },
-        //     {
-        //         id: 4,
-        //         name: 'laravel.com'
-        //     },
-        //     {
-        //         id: 5,
-        //         name: 'work'
-        //     },
-        //     {
-        //         id: 6,
-        //         name: 'videos'
-        //     },
-        //     {
-        //         id: 7,
-        //         name: 'games'
-        //     },
-        //     {
-        //         id: 8,
-        //         name: 'Teacher'
-        //     },
-      ],
+      tags: [],
       bookmarks: [],
       isGetBookmarksBusy: false,
       page: 1,
       filter: {
         tags: []
-      }
+      },
+      tagSearch: ''
     };
   },
-  computed: {},
+  computed: {
+    filteredTags: function filteredTags() {
+      var _this = this;
+
+      return this.tags.filter(function (tag) {
+        return tag.name.toLowerCase().indexOf(_this.tagSearch.toLowerCase()) >= 0;
+      });
+    }
+  },
   created: function created() {
     this.$eventHub.$on('open-left-bar', this.openLeftBar);
     this.$eventHub.$on('close-left-bar', this.closeLeftBar);
@@ -2178,10 +2155,10 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       this.isLeftBarOpened = isOpened;
     },
     getTags: function getTags() {
-      var _this = this;
+      var _this2 = this;
 
       return axios.get(AppHelper.getBaseApiUrl() + 'user/tags').then(function (res) {
-        _this.tags = res.tags;
+        _this2.tags = res.tags;
       });
     },
     toggleTagFilter: function toggleTagFilter(tag) {
@@ -2206,8 +2183,12 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         return el == tag;
       }) != -1;
     },
+    clearTagFilters: function clearTagFilters() {
+      this.filter.tags = [];
+      this.refreshForFilters();
+    },
     getBookmarks: function getBookmarks() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.isGetBookmarksBusy = true;
       return axios.get(AppHelper.getBaseApiUrl() + 'user/bookmarks', {
@@ -2216,7 +2197,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           tags: this.filter.tags
         }
       }).then(function (res) {
-        var _this2$bookmarks;
+        var _this3$bookmarks;
 
         var bookmarks = res.bookmarks.data;
 
@@ -2224,12 +2205,12 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           return false;
         }
 
-        (_this2$bookmarks = _this2.bookmarks).push.apply(_this2$bookmarks, _toConsumableArray(res.bookmarks.data));
+        (_this3$bookmarks = _this3.bookmarks).push.apply(_this3$bookmarks, _toConsumableArray(res.bookmarks.data));
 
-        _this2.page++;
+        _this3.page++;
         return true;
       }).then(function (res) {
-        _this2.isGetBookmarksBusy = false;
+        _this3.isGetBookmarksBusy = false;
         return res;
       });
     },
@@ -2375,7 +2356,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".v-card__title[data-v-a0719380] {\n  height: 85px;\n  padding: 10px;\n  overflow-y: hidden;\n}\na[data-v-a0719380] {\n  color: #424242;\n  text-decoration: none;\n}", ""]);
+exports.push([module.i, ".v-card__title[data-v-a0719380] {\n  height: 85px;\n  padding: 10px;\n  overflow-y: hidden;\n}\n.v-list__tile__title[data-v-a0719380] {\n  font-size: 15px;\n}\n.clear-tag-filters-button[data-v-a0719380] {\n  float: right;\n  line-height: 26px;\n  cursor: pointer;\n}\na[data-v-a0719380] {\n  color: #424242;\n  text-decoration: none;\n}", ""]);
 
 // exports
 
@@ -21979,8 +21960,7 @@ var render = function() {
                       attrs: {
                         height: "auto",
                         flat: "",
-                        color: "orange lighten-2",
-                        dark: ""
+                        color: "orange lighten-2"
                       }
                     },
                     [
@@ -21989,16 +21969,49 @@ var render = function() {
                         [
                           _c(
                             "v-list-tile",
+                            { staticClass: "secondary--text" },
                             [
                               _c(
                                 "v-list-tile-title",
                                 { staticClass: "title" },
                                 [
                                   _vm._v(
-                                    "\r\n                                Tags\r\n                            "
-                                  )
+                                    "\r\n                                Tags "
+                                  ),
+                                  _vm.filter.tags.length > 0
+                                    ? _c(
+                                        "span",
+                                        {
+                                          staticClass:
+                                            "white--text body-2 clear-tag-filters-button",
+                                          on: { click: _vm.clearTagFilters }
+                                        },
+                                        [_vm._v("Clear All")]
+                                      )
+                                    : _vm._e()
                                 ]
                               )
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-list-tile",
+                            [
+                              _c("v-text-field", {
+                                attrs: {
+                                  "single-line": "",
+                                  solo: "",
+                                  "prepend-inner-icon": "search"
+                                },
+                                model: {
+                                  value: _vm.tagSearch,
+                                  callback: function($$v) {
+                                    _vm.tagSearch = $$v
+                                  },
+                                  expression: "tagSearch"
+                                }
+                              })
                             ],
                             1
                           )
@@ -22014,12 +22027,16 @@ var render = function() {
                   _c(
                     "v-list",
                     { staticClass: "pt-0", attrs: { dense: "" } },
-                    _vm._l(_vm.tags, function(tag) {
+                    _vm._l(_vm.filteredTags, function(tag) {
                       return _c(
                         "v-list-tile",
                         {
                           key: tag.id,
-                          class: { primary: _vm.isTagFilterSelected(tag.name) },
+                          class: {
+                            "primary white--text": _vm.isTagFilterSelected(
+                              tag.name
+                            )
+                          },
                           on: {
                             click: function($event) {
                               return _vm.toggleTagFilter(tag.name)
