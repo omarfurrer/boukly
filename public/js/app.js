@@ -2150,7 +2150,10 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       ],
       bookmarks: [],
       isGetBookmarksBusy: false,
-      page: 1
+      page: 1,
+      filter: {
+        tags: []
+      }
     };
   },
   computed: {},
@@ -2181,13 +2184,36 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         _this.tags = res.tags;
       });
     },
-    getBookmarks: function getBookmarks($state) {
+    toggleTagFilter: function toggleTagFilter(tag) {
+      if (this.isTagFilterSelected(tag)) {
+        this.removeTagFilter(tag);
+      } else {
+        this.addTagFilter(tag);
+      }
+
+      this.refreshForFilters();
+    },
+    addTagFilter: function addTagFilter(tag) {
+      this.filter.tags.push(tag);
+    },
+    removeTagFilter: function removeTagFilter(tag) {
+      this.filter.tags.splice(this.filter.tags.findIndex(function (el) {
+        return el == tag;
+      }), 1);
+    },
+    isTagFilterSelected: function isTagFilterSelected(tag) {
+      return this.filter.tags.findIndex(function (el) {
+        return el == tag;
+      }) != -1;
+    },
+    getBookmarks: function getBookmarks() {
       var _this2 = this;
 
       this.isGetBookmarksBusy = true;
       return axios.get(AppHelper.getBaseApiUrl() + 'user/bookmarks', {
         params: {
-          page: this.page
+          page: this.page,
+          tags: this.filter.tags
         }
       }).then(function (res) {
         var _this2$bookmarks;
@@ -2195,17 +2221,31 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         var bookmarks = res.bookmarks.data;
 
         if (bookmarks.length == 0) {
-          $state.complete();
-          return;
+          return false;
         }
 
         (_this2$bookmarks = _this2.bookmarks).push.apply(_this2$bookmarks, _toConsumableArray(res.bookmarks.data));
 
         _this2.page++;
-        $state.loaded();
+        return true;
       }).then(function (res) {
         _this2.isGetBookmarksBusy = false;
+        return res;
       });
+    },
+    handleInfiniteScroll: function handleInfiniteScroll($state) {
+      this.getBookmarks().then(function (addedMore) {
+        if (addedMore) {
+          $state.loaded();
+        } else {
+          $state.complete();
+        }
+      });
+    },
+    refreshForFilters: function refreshForFilters() {
+      this.page = 1;
+      this.bookmarks = [];
+      this.getBookmarks();
     }
   }
 });
@@ -21977,7 +22017,15 @@ var render = function() {
                     _vm._l(_vm.tags, function(tag) {
                       return _c(
                         "v-list-tile",
-                        { key: tag.id, on: { click: function($event) {} } },
+                        {
+                          key: tag.id,
+                          class: { primary: _vm.isTagFilterSelected(tag.name) },
+                          on: {
+                            click: function($event) {
+                              return _vm.toggleTagFilter(tag.name)
+                            }
+                          }
+                        },
                         [
                           _c(
                             "v-list-tile-content",
@@ -22007,7 +22055,7 @@ var render = function() {
             [
               _c(
                 "v-container",
-                { attrs: { "grid-list-lg": "" } },
+                { attrs: { "grid-list-lg": "", id: "bookmarks-container" } },
                 [
                   _c(
                     "v-layout",
@@ -22073,7 +22121,9 @@ var render = function() {
                     1
                   ),
                   _vm._v(" "),
-                  _c("infinite-loading", { on: { infinite: _vm.getBookmarks } })
+                  _c("infinite-loading", {
+                    on: { infinite: _vm.handleInfiniteScroll }
+                  })
                 ],
                 1
               )

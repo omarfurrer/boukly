@@ -44,7 +44,8 @@
                     <v-list-tile
                         v-for="tag in tags"
                         :key="tag.id"
-                        @click=""
+                        @click="toggleTagFilter(tag.name)"
+                        :class="{'primary' : isTagFilterSelected(tag.name)}"
                     >
                         <v-list-tile-content>
                             <v-list-tile-title>{{ tag.name }}</v-list-tile-title>
@@ -59,7 +60,10 @@
             md9
             lg10
         >
-            <v-container grid-list-lg>
+            <v-container
+                grid-list-lg
+                id="bookmarks-container"
+            >
                 <v-layout
                     row
                     wrap
@@ -89,7 +93,7 @@
                         </v-card>
                     </v-flex>
                 </v-layout>
-                <infinite-loading @infinite="getBookmarks" ></infinite-loading>
+                <infinite-loading @infinite="handleInfiniteScroll"></infinite-loading>
             </v-container>
         </v-flex>
     </v-layout>

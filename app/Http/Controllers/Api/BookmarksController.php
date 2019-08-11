@@ -79,7 +79,7 @@ class BookmarksController extends Controller
      */
     public function get(Request $request)
     {
-        $bookmarks = $this->bookmarksService->getUserBookmarks(Auth::user(), 100, $request->page ? $request->page : 1);
+        $bookmarks = $this->bookmarksService->getUserBookmarks(Auth::user(), 100, $request->page ? $request->page : 1, $request->tags);
         return response()->json(['bookmarks' => $bookmarks]);
     }
 }

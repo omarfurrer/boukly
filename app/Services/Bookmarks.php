@@ -41,9 +41,22 @@ class Bookmarks
      * @param User $user
      * @return boolean
      */
-    public function getUserBookmarks(User $user, $perPage = 100, $page = 1)
+    public function getUserBookmarks(User $user, $perPage = 100, $page = 1, $tags = [])
     {
-        $bookmarks = $user->bookmarks()->paginate($perPage, ['*'], 'page', $page);
+        $bookmarks = $user->bookmarks();
+
+        if (!empty($tags)) {
+            $bookmarks = $bookmarks
+                ->join('bookmark_tag', 'bookmarks.id', '=', 'bookmark_tag.bookmark_id')
+                ->join('tags', 'tags.id', '=', 'bookmark_tag.tag_id')
+                ->where('bookmark_tag.user_id', $user->id)
+                ->whereIn('tags.name', $tags);
+        }
+
+        $bookmarks = $bookmarks
+            // ->where('is_adult', false)
+            ->paginate($perPage, ['bookmarks.*'], 'page', $page);
+
         return $bookmarks;
     }
 }

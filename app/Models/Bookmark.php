@@ -72,6 +72,6 @@ class Bookmark extends Model
      */
     public function tags()
     {
-        return $this->belongsToMany(Tag::class)->withPivot('user_id')->withTimestamps();
+        return $this->belongsToMany(Tag::class)->groupBy(['id', 'name']);
     }
 }

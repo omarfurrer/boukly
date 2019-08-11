@@ -40,7 +40,10 @@ export default {
             ],
             bookmarks: [],
             isGetBookmarksBusy: false,
-            page: 1
+            page: 1,
+            filter: {
+                tags: []
+            }
         }
 
     },
@@ -73,25 +76,62 @@ export default {
                 this.tags = res.tags;
             });
         },
-        getBookmarks($state) {
+        toggleTagFilter(tag) {
+            if (this.isTagFilterSelected(tag)) {
+                this.removeTagFilter(tag);
+            } else {
+                this.addTagFilter(tag);
+            }
+            this.refreshForFilters();
+        },
+        addTagFilter(tag) {
+            this.filter.tags.push(tag);
+        },
+        removeTagFilter(tag) {
+            this.filter.tags.splice(this.filter.tags.findIndex((el) => {
+                return el == tag
+            }), 1);
+        },
+        isTagFilterSelected(tag) {
+            return this.filter.tags.findIndex((el) => {
+                return el == tag
+            }) != -1;
+        },
+        getBookmarks() {
             this.isGetBookmarksBusy = true;
             return axios.get(AppHelper.getBaseApiUrl() + 'user/bookmarks', {
                 params: {
-                    page: this.page
+                    page: this.page,
+                    tags: this.filter.tags
                 }
             }).then((res) => {
                 const bookmarks = res.bookmarks.data;
                 if (bookmarks.length == 0) {
-                    $state.complete();
-                    return;
+                    return false;
                 }
                 this.bookmarks.push(...res.bookmarks.data);
                 this.page++;
-                $state.loaded();
+                return true
             }).then(res => {
                 this.isGetBookmarksBusy = false;
+                return res;
             });
 
+        },
+        handleInfiniteScroll($state) {
+            this.getBookmarks()
+                .then(addedMore => {
+                    if (addedMore) {
+                        $state.loaded();
+                    } else {
+                        $state.complete();
+                    }
+                });
+        },
+        refreshForFilters() {
+            this.page = 1;
+            this.bookmarks = [];
+            this.getBookmarks();
         }
     }
 
