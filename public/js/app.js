@@ -2122,7 +2122,9 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       filter: {
         tags: []
       },
-      tagSearch: ''
+      tagSearch: '',
+      infiniteScrollPluginId: +new Date(),
+      isPrivateMode: false
     };
   },
   computed: {
@@ -2157,7 +2159,11 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     getTags: function getTags() {
       var _this2 = this;
 
-      return axios.get(AppHelper.getBaseApiUrl() + 'user/tags').then(function (res) {
+      return axios.get(AppHelper.getBaseApiUrl() + 'user/tags', {
+        params: {
+          isPrivate: this.isPrivateMode ? 1 : 0
+        }
+      }).then(function (res) {
         _this2.tags = res.tags;
       });
     },
@@ -2194,7 +2200,8 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       return axios.get(AppHelper.getBaseApiUrl() + 'user/bookmarks', {
         params: {
           page: this.page,
-          tags: this.filter.tags
+          tags: this.filter.tags,
+          isPrivate: this.isPrivateMode ? 1 : 0
         }
       }).then(function (res) {
         var _this3$bookmarks;
@@ -2217,16 +2224,34 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     handleInfiniteScroll: function handleInfiniteScroll($state) {
       this.getBookmarks().then(function (addedMore) {
         if (addedMore) {
+          // Indicate to the plugin that more data was loaded
           $state.loaded();
         } else {
+          // Indicate to the plugin that there is no more data
           $state.complete();
         }
       });
     },
     refreshForFilters: function refreshForFilters() {
       this.page = 1;
-      this.bookmarks = [];
-      this.getBookmarks();
+      this.bookmarks = []; // reset the plugin in case $state.complete was called earlier on
+      // when the plugin resets, data automaticaly refreshes by calling the handleInfiniteScroll
+
+      this.infiniteScrollPluginId++;
+    },
+    refreshTags: function refreshTags() {
+      this.tags = [];
+      this.filter.tags = [];
+      this.getTags();
+    },
+    bookmarkImageUrlAlt: function bookmarkImageUrlAlt(event) {
+      event.target.src = "/images/placeholder-400x200-secondary.png";
+    }
+  },
+  watch: {
+    isPrivateMode: function isPrivateMode(val) {
+      this.refreshForFilters();
+      this.refreshTags();
     }
   }
 });
@@ -21979,6 +22004,16 @@ var render = function() {
                                     "\r\n                                Tags "
                                   ),
                                   _vm.filter.tags.length > 0
+                                    ? _c("span", [
+                                        _vm._v(
+                                          " (" +
+                                            _vm._s(_vm.filter.tags.length) +
+                                            ")"
+                                        )
+                                      ])
+                                    : _vm._e(),
+                                  _vm._v(" "),
+                                  _vm.filter.tags.length > 0
                                     ? _c(
                                         "span",
                                         {
@@ -22072,6 +22107,51 @@ var render = function() {
             [
               _c(
                 "v-container",
+                { staticClass: "pb-0 pt-0", attrs: { fluid: "" } },
+                [
+                  _c(
+                    "v-layout",
+                    { attrs: { row: "" } },
+                    [
+                      _c(
+                        "v-flex",
+                        {
+                          attrs: {
+                            "offset-xs7": "",
+                            "offset-md10": "",
+                            xs5: "",
+                            md2: ""
+                          }
+                        },
+                        [
+                          _c("v-switch", {
+                            staticClass: "private-switch",
+                            attrs: {
+                              label: "Private Mode",
+                              color: "warning",
+                              "input-value": "true",
+                              "hide-details": ""
+                            },
+                            model: {
+                              value: _vm.isPrivateMode,
+                              callback: function($$v) {
+                                _vm.isPrivateMode = $$v
+                              },
+                              expression: "isPrivateMode"
+                            }
+                          })
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-container",
                 { attrs: { "grid-list-lg": "", id: "bookmarks-container" } },
                 [
                   _c(
@@ -22082,7 +22162,7 @@ var render = function() {
                         "v-flex",
                         {
                           key: bookmark.id,
-                          attrs: { xs12: "", sm12: "", md4: "" }
+                          attrs: { xs12: "", sm12: "", md3: "" }
                         },
                         [
                           _c(
@@ -22091,7 +22171,12 @@ var render = function() {
                             [
                               _c(
                                 "a",
-                                { attrs: { href: bookmark.url } },
+                                {
+                                  attrs: {
+                                    href: bookmark.url,
+                                    target: "_blank"
+                                  }
+                                },
                                 [
                                   _c("v-img", {
                                     attrs: {
@@ -22099,7 +22184,8 @@ var render = function() {
                                         ? bookmark.image
                                         : "/images/placeholder-400x200-secondary.png",
                                       height: "200"
-                                    }
+                                    },
+                                    on: { error: _vm.bookmarkImageUrlAlt }
                                   })
                                 ],
                                 1
@@ -22110,21 +22196,30 @@ var render = function() {
                                 { attrs: { "primary-title": "" } },
                                 [
                                   _c("div", [
-                                    _c("a", { attrs: { href: bookmark.url } }, [
-                                      _c(
-                                        "p",
-                                        { staticClass: "subheading mb-0" },
-                                        [
-                                          _vm._v(
-                                            _vm._s(
-                                              bookmark.title
-                                                ? bookmark.title
-                                                : "No Title"
+                                    _c(
+                                      "a",
+                                      {
+                                        attrs: {
+                                          href: bookmark.url,
+                                          target: "_blank"
+                                        }
+                                      },
+                                      [
+                                        _c(
+                                          "p",
+                                          { staticClass: "subheading mb-0" },
+                                          [
+                                            _vm._v(
+                                              _vm._s(
+                                                bookmark.title
+                                                  ? bookmark.title
+                                                  : "No Title"
+                                              )
                                             )
-                                          )
-                                        ]
-                                      )
-                                    ])
+                                          ]
+                                        )
+                                      ]
+                                    )
                                   ])
                                 ]
                               )
@@ -22139,6 +22234,7 @@ var render = function() {
                   ),
                   _vm._v(" "),
                   _c("infinite-loading", {
+                    attrs: { identifier: _vm.infiniteScrollPluginId },
                     on: { infinite: _vm.handleInfiniteScroll }
                   })
                 ],
@@ -64715,7 +64811,7 @@ __webpack_require__.r(__webpack_exports__);
   BASE_URL: '/',
   API_URL: 'api/',
   AUTH_CLIENT_ID: 2,
-  AUTH_CLIENT_SECRET: 'vXdgX78ZZLGRd2R20QSxkko8VcDk2x3mbGOkkiQg'
+  AUTH_CLIENT_SECRET: 'MBJZye87fucPZ3kNVRsKi5huQBgtLMnZiq7MhlLT'
 });
 
 /***/ }),

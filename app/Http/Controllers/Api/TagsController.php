@@ -31,9 +31,9 @@ class TagsController extends Controller
      *
      * @return JsonResponse
      */
-    public function getUserTags()
+    public function getUserTags(Request $request)
     {
-        $tags = $this->tagsService->getUserTags(Auth::user());
+        $tags = $this->tagsService->getUserTags(Auth::user(), $request->isPrivate);
         return response()->json(['tags' => $tags]);
     }
 }

@@ -27,10 +27,12 @@ class BookmarkDomainTagHandler
         // get domain
         $domain = $bookmark->domain;
 
-        // make sure adult tag exists
-        $tag = Tag::firstOrCreate(['name' => $domain]);
+        $isDomainAdult = $bookmark->is_adult;
 
-        $bookmark->tags()->attach($tag->id, ['user_id' => $user->id]);
+        // make sure adult tag exists
+        $tag = Tag::firstOrCreate(['name' => $domain, 'is_adult' => $isDomainAdult]);
+
+        $bookmark->tags()->attach($tag->id, ['user_id' => $user->id, 'is_private' => $isDomainAdult]);
 
         return $bookmark->fresh();
     }

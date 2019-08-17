@@ -3,5 +3,5 @@ export default {
     BASE_URL: '/',
     API_URL: 'api/',
     AUTH_CLIENT_ID: 2,
-    AUTH_CLIENT_SECRET: 'vXdgX78ZZLGRd2R20QSxkko8VcDk2x3mbGOkkiQg'
+    AUTH_CLIENT_SECRET: 'MBJZye87fucPZ3kNVRsKi5huQBgtLMnZiq7MhlLT'
 }

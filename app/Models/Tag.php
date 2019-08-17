@@ -20,7 +20,8 @@ class Tag extends Model
      * @var array
      */
     protected $fillable = [
-        "name"
+        "name",
+        "is_adult"
     ];
 
     /**

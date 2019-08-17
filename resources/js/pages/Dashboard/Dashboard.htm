@@ -28,7 +28,11 @@
                     <v-list>
                         <v-list-tile class="secondary--text">
                             <v-list-tile-title class="title">
-                                Tags <span v-if="filter.tags.length > 0" @click="clearTagFilters" class="white--text body-2 clear-tag-filters-button">Clear All</span>
+                                Tags <span v-if="filter.tags.length > 0"> ({{filter.tags.length}})</span> <span
+                                    v-if="filter.tags.length > 0"
+                                    @click="clearTagFilters"
+                                    class="white--text body-2 clear-tag-filters-button"
+                                >Clear All</span>
                             </v-list-tile-title>
                         </v-list-tile>
                         <v-list-tile>
@@ -68,6 +72,28 @@
             lg10
         >
             <v-container
+                fluid
+                class="pb-0 pt-0"
+            >
+                <v-layout row>
+                    <v-flex
+                        offset-xs7
+                        offset-md10
+                        xs5
+                        md2
+                    >
+                        <v-switch
+                            class="private-switch"
+                            v-model="isPrivateMode"
+                            label="Private Mode"
+                            color="warning"
+                            input-value="true"
+                            hide-details
+                        ></v-switch>
+                    </v-flex>
+                </v-layout>
+            </v-container>
+            <v-container
                 grid-list-lg
                 id="bookmarks-container"
             >
@@ -80,19 +106,26 @@
                         :key="bookmark.id"
                         xs12
                         sm12
-                        md4
+                        md3
                     >
                         <v-card height="300">
-                            <a :href="bookmark.url">
+                            <a
+                                :href="bookmark.url"
+                                target="_blank"
+                            >
                                 <v-img
                                     :src="bookmark.image ? bookmark.image : '/images/placeholder-400x200-secondary.png'"
                                     height="200"
+                                    @error="bookmarkImageUrlAlt"
                                 ></v-img>
                             </a>
 
                             <v-card-title primary-title>
                                 <div>
-                                    <a :href="bookmark.url">
+                                    <a
+                                        :href="bookmark.url"
+                                        target="_blank"
+                                    >
                                         <p class="subheading mb-0">{{bookmark.title ? bookmark.title : 'No Title'}}</p>
                                     </a>
                                 </div>
@@ -100,7 +133,10 @@
                         </v-card>
                     </v-flex>
                 </v-layout>
-                <infinite-loading @infinite="handleInfiniteScroll"></infinite-loading>
+                <infinite-loading
+                    @infinite="handleInfiniteScroll"
+                    :identifier="infiniteScrollPluginId"
+                ></infinite-loading>
             </v-container>
         </v-flex>
     </v-layout>

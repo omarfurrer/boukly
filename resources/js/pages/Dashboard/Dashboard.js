@@ -11,7 +11,9 @@ export default {
             filter: {
                 tags: []
             },
-            tagSearch: ''
+            tagSearch: '',
+            infiniteScrollPluginId: +new Date(),
+            isPrivateMode: false,
         }
 
     },
@@ -41,7 +43,11 @@ export default {
             this.isLeftBarOpened = isOpened;
         },
         getTags() {
-            return axios.get(AppHelper.getBaseApiUrl() + 'user/tags').then((res) => {
+            return axios.get(AppHelper.getBaseApiUrl() + 'user/tags', {
+                params: {
+                    isPrivate: this.isPrivateMode ? 1 : 0
+                }
+            }).then((res) => {
                 this.tags = res.tags;
             });
         },
@@ -75,7 +81,8 @@ export default {
             return axios.get(AppHelper.getBaseApiUrl() + 'user/bookmarks', {
                 params: {
                     page: this.page,
-                    tags: this.filter.tags
+                    tags: this.filter.tags,
+                    isPrivate: this.isPrivateMode ? 1 : 0
                 }
             }).then((res) => {
                 const bookmarks = res.bookmarks.data;
@@ -95,8 +102,10 @@ export default {
             this.getBookmarks()
                 .then(addedMore => {
                     if (addedMore) {
+                        // Indicate to the plugin that more data was loaded
                         $state.loaded();
                     } else {
+                        // Indicate to the plugin that there is no more data
                         $state.complete();
                     }
                 });
@@ -104,8 +113,24 @@ export default {
         refreshForFilters() {
             this.page = 1;
             this.bookmarks = [];
-            this.getBookmarks();
+            // reset the plugin in case $state.complete was called earlier on
+            // when the plugin resets, data automaticaly refreshes by calling the handleInfiniteScroll
+            this.infiniteScrollPluginId++;
+        },
+        refreshTags() {
+            this.tags = [];
+            this.filter.tags = [];
+            this.getTags();
+        },
+        bookmarkImageUrlAlt(event) {
+            event.target.src = "/images/placeholder-400x200-secondary.png"
         }
+    },
+    watch: {
+        isPrivateMode: function (val) {
+            this.refreshForFilters();
+            this.refreshTags();
+        },
     }
 
 }

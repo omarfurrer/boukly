@@ -21,6 +21,7 @@ class CreateBookmarkTagTable extends Migration
             $table->foreign('tag_id')->references('id')->on('tags')->onDelete('cascade');
             $table->bigInteger('user_id')->unsigned()->index();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->boolean('is_private')->default(0);
             $table->unique(['user_id', 'bookmark_id', 'tag_id']);
             $table->timestamps();
         });

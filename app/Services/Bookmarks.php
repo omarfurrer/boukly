@@ -42,7 +42,7 @@ class Bookmarks
      * @param User $user
      * @return boolean
      */
-    public function getUserBookmarks(User $user, $perPage = 100, $page = 1, $tags = [])
+    public function getUserBookmarks(User $user, $perPage = 100, $page = 1, $tags = [], $isPrivate = false)
     {
         $bookmarks = Bookmark::join('bookmark_user', 'bookmarks.id', '=', 'bookmark_user.bookmark_id')
             ->where('bookmark_user.user_id', $user->id);
@@ -58,7 +58,8 @@ class Bookmarks
 
         $bookmarks = $bookmarks
             // ->where('is_adult', false)
-            ->orderBy('bookmark_user.id','DESC')
+            ->orderBy('bookmark_user.id', 'DESC')
+            ->where('bookmark_user.is_private', $isPrivate)
             ->paginate($perPage, ['bookmarks.*'], 'page', $page);
 
         return $bookmarks;
