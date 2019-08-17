@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Services\NodeScriptRunners\UrlAvailabilityCheckNodeScriptRunner;
+use Log;
 
 class UrlAvailabilityChecker
 {
@@ -61,13 +62,31 @@ class UrlAvailabilityChecker
      */
     public function check($url)
     {
+        Log::debug("[UrlAvailabilityChecker][check] Attempting to check availability.", [
+            'url' => $url
+        ]);
+
         $this->reset();
 
         $scriptOutput = $this->urlAvailabilityNodeScriptRunner->run([
             'url' => $url
         ]);
 
-        $this->isAvailable = !$scriptOutput->error;
+        Log::debug("[UrlAvailabilityChecker][check] Availability check output.", [
+            'url' => $url,
+            'response' => $scriptOutput
+        ]);
+
+        if ($scriptOutput->error) {
+            // log error
+            Log::error("[UrlAvailabilityChecker][check] Error checking availability.", [
+                'url' => $url,
+                'details' => $scriptOutput->errorDetails
+            ]);
+            throw new Exception('Error checking availability.');
+        }
+
+        $this->isAvailable = $scriptOutput->isAvailable;
 
         if (!empty($scriptOutput->code)) {
             $this->code = $scriptOutput->code;

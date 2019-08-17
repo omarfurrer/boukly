@@ -23,7 +23,8 @@ class BookmarkUserAssociator
      */
     public function associate(Bookmark $bookmark, User $user)
     {
-        $user->bookmarks()->attach($bookmark->id);
+        // originally associate bookmark privately until shown otherwise
+        $user->bookmarks()->attach($bookmark->id, ['is_private' => true]);
         return $bookmark->fresh();
     }
 }

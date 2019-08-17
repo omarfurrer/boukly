@@ -7,6 +7,11 @@ const request = require('request');
 
     var result = {
         error: false,
+        errorDetails: {
+            response: null,
+            body: null,
+        },
+        isAvailable: true,
         code: null,
         message: '',
     };
@@ -17,11 +22,13 @@ const request = require('request');
     }, (err, response, body) => {
         if (err) {
             result.error = true;
+            result.errorDetails.response = response;
+            result.errorDetails.body = body;
         } else {
             result.code = response.statusCode;
             result.message = response.statusMessage;
             if (result.code < 200 || result.code > 299) {
-                result.error = true;
+                result.isAvailable = false;
             }
         }
         console.log(JSON.stringify(result));

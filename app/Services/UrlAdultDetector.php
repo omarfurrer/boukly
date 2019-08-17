@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Services\NodeScriptRunners\UrlAdultDetectorNodeScriptRunner;
+use Log;
 
 class UrlAdultDetector
 {
@@ -37,9 +38,30 @@ class UrlAdultDetector
      */
     public function detect($url)
     {
-        $this->isAdult = $this->urlAdultDetectorNodeScriptRunner->run([
+        Log::debug("[UrlAdultDetector][detect] Attempting to detect adult.", [
             'url' => $url
         ]);
+
+        $scriptOutput = $this->urlAdultDetectorNodeScriptRunner->run([
+            'url' => $url
+        ]);
+
+        Log::debug("[UrlAdultDetector][detect] Adult detection output.", [
+            'url' => $url,
+            'response' => $scriptOutput
+        ]);
+
+        // log error
+        if ($scriptOutput->error) {
+            Log::error("[UrlAvailabilityChecker][check] Error detecting adult.", [
+                'url' => $url,
+                'details' => $scriptOutput->errorDetails
+            ]);
+            throw new Exception('Error detecting adult.');
+        }
+
+        $this->isAdult = $scriptOutput->isAdult;
+
         return $this->isAdult;
     }
 

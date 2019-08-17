@@ -8,6 +8,15 @@ var userAgents = require('./userAgents.json');
     const args = process.argv.splice(2);
     const url = args[0];
 
+    var result = {
+        error: false,
+        errorDetails: {
+            response: null,
+            body: null,
+        },
+        metaTags: null
+    };
+
     scrape({
         url: url,
         jar: request.jar(), // Cookie jar
@@ -16,7 +25,13 @@ var userAgents = require('./userAgents.json');
         },
         timeout: 50000
     }, function (error, metadata) {
-        console.log(JSON.stringify(metadata));
+        if (error) {
+            result.error = true;
+            result.errorDetails = error;
+        } else {
+            result.metaTags = metadata;
+        }
+        console.log(JSON.stringify(result));
     });
 
 })();

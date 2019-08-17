@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Services\NodeScriptRunners\UrlMetatagsExtractorNodeScriptRunner;
+use Log;
 
 class UrlMetatagsExtractor
 {
@@ -69,11 +70,31 @@ class UrlMetatagsExtractor
      */
     public function extract($url)
     {
-        $this->reset();
-
-        $metaTags = $this->urlMetatagsExtractorNodeScriptRunner->run([
+        Log::debug("[UrlMetatagsExtractor][extract] Attempting to extract meta tags.", [
             'url' => $url
         ]);
+
+        $this->reset();
+
+        $scriptOutput = $this->urlMetatagsExtractorNodeScriptRunner->run([
+            'url' => $url
+        ]);
+
+        Log::debug("[UrlMetatagsExtractor][extract] Meta tags extraction output.", [
+            'url' => $url,
+            'response' => $scriptOutput
+        ]);
+
+        // log error
+        if ($scriptOutput->error) {
+            Log::error("[UrlMetatagsExtractor][extract] Error extracting meta tags.", [
+                'url' => $url,
+                'details' => $scriptOutput->errorDetails
+            ]);
+            throw new Exception('Error extracting meta tags.');
+        }
+
+        $metaTags = $scriptOutput->metaTags;
 
         $this->setMetaTags($metaTags);
 

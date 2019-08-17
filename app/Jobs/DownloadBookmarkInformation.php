@@ -15,6 +15,7 @@ use App\Services\BookmarkMetatagsHandler;
 use App\Services\BookmarkUserPrivacyHandler;
 use App\Services\BookmarkDomainTagHandler;
 use App\Services\BookmarkAdultTagHandler;
+use Log;
 
 class DownloadBookmarkInformation implements ShouldQueue
 {
@@ -56,6 +57,11 @@ class DownloadBookmarkInformation implements ShouldQueue
         BookmarkAdultTagHandler $bookmarkAdultTagHandler,
         BookmarkDomainTagHandler $bookmarkDomainTagHandler
     ) {
+        Log::debug('[DownloadBookmarkInformation][hadnle] Attempting to Retrieve info for bookmark.', [
+            'bookmark' => $this->bookmark,
+            'user' => $this->user
+        ]);
+
         $bookmark = $bookmarkAvailabilityHandler->handle($this->bookmark);
         $bookmark = $bookmarkMetatagsHandler->handle($bookmark);
         $bookmark = $bookmarkAdultHandler->handle($bookmark); // TODO make sure its available first ?

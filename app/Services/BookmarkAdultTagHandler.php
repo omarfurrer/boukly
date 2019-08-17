@@ -31,7 +31,7 @@ class BookmarkAdultTagHandler
         // make sure adult tag exists
         $tag = Tag::firstOrCreate(['name' => 'adult', 'is_adult' => true]);
 
-        $bookmark->tags()->attach($tag->id, ['user_id' => $user->id, 'is_private' => true]);
+        $bookmark->tags()->syncWithoutDetaching([$tag->id => ['user_id' => $user->id, 'is_private' => true]]);
 
         return $bookmark->fresh();
     }
