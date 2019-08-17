@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Services\NodeScriptRunners\UrlAdultDetectorNodeScriptRunner;
 use Log;
+use Exception;
 
 class UrlAdultDetector
 {
@@ -52,10 +53,10 @@ class UrlAdultDetector
         ]);
 
         // log error
-        if ($scriptOutput->error) {
+        if (empty($scriptOutput) || $scriptOutput->error) {
             Log::error("[UrlAvailabilityChecker][check] Error detecting adult.", [
                 'url' => $url,
-                'details' => $scriptOutput->errorDetails
+                'details' => empty($scriptOutput->error) ? $scriptOutput : $scriptOutput->errorDetails
             ]);
             throw new Exception('Error detecting adult.');
         }

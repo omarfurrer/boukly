@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Services\NodeScriptRunners\UrlAvailabilityCheckNodeScriptRunner;
 use Log;
+use Exception;
 
 class UrlAvailabilityChecker
 {
@@ -77,11 +78,11 @@ class UrlAvailabilityChecker
             'response' => $scriptOutput
         ]);
 
-        if ($scriptOutput->error) {
+        if (empty($scriptOutput) || $scriptOutput->error) {
             // log error
             Log::error("[UrlAvailabilityChecker][check] Error checking availability.", [
                 'url' => $url,
-                'details' => $scriptOutput->errorDetails
+                'details' => empty($scriptOutput->error) ? $scriptOutput : $scriptOutput->errorDetails
             ]);
             throw new Exception('Error checking availability.');
         }

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Services\NodeScriptRunners\UrlMetatagsExtractorNodeScriptRunner;
 use Log;
+use Exception;
 
 class UrlMetatagsExtractor
 {
@@ -86,10 +87,10 @@ class UrlMetatagsExtractor
         ]);
 
         // log error
-        if ($scriptOutput->error) {
+        if (empty($scriptOutput) || $scriptOutput->error) {
             Log::error("[UrlMetatagsExtractor][extract] Error extracting meta tags.", [
                 'url' => $url,
-                'details' => $scriptOutput->errorDetails
+                'details' => empty($scriptOutput->error) ? $scriptOutput : $scriptOutput->errorDetails
             ]);
             throw new Exception('Error extracting meta tags.');
         }
