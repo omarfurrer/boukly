@@ -1,4 +1,6 @@
 const request = require('request');
+const helpers = require('./helpers.js');
+var userAgents = require('./userAgents.json');
 
 (async () => {
 
@@ -9,21 +11,22 @@ const request = require('request');
         error: false,
         errorDetails: {
             response: null,
-            body: null,
         },
         isAvailable: true,
         code: null,
         message: '',
     };
-
     request(url, {
         json: true,
-        timeout: 50000
+        timeout: 50000,
+        jar: request.jar(), // Cookie jar
+        headers: {
+            'User-Agent': helpers.getRandomUserAgent(userAgents)
+        },
     }, (err, response, body) => {
         if (err) {
             result.error = true;
-            result.errorDetails.response = response;
-            result.errorDetails.body = body;
+            result.errorDetails.response = err;
         } else {
             result.code = response.statusCode;
             result.message = response.statusMessage;

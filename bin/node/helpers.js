@@ -1,8 +1,8 @@
 var helpers = {
     extractRootDomain: async function (url) {
         var domain = await helpers.extractHostname(url),
-                splitArr = domain.split('.'),
-                arrLen = splitArr.length;
+            splitArr = domain.split('.'),
+            arrLen = splitArr.length;
 
         //extracting the root domain here
         //if there is a subdomain
@@ -33,7 +33,7 @@ var helpers = {
 
         return hostname;
     },
-    getRandomUserAgent: async function (userAgentsArray) {
+    getRandomUserAgent: function (userAgentsArray) {
         return userAgentsArray[Math.floor(Math.random() * userAgentsArray.length)];
     }
 }
