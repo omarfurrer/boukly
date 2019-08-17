@@ -90,7 +90,7 @@ class UrlMetatagsExtractor
         if (empty($scriptOutput) || $scriptOutput->error) {
             Log::error("[UrlMetatagsExtractor][extract] Error extracting meta tags.", [
                 'url' => $url,
-                'details' => empty($scriptOutput->error) ? $scriptOutput : $scriptOutput->errorDetails
+                'details' => empty($scriptOutput) ? $scriptOutput : $scriptOutput->errorDetails
             ]);
             throw new Exception('Error extracting meta tags.');
         }

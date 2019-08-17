@@ -93,10 +93,11 @@ class BookmarkImporter
         $this->bookmarkDomainTagHandler = $bookmarkDomainTagHandler;
     }
 
-    public function importFromTextFile($name)
+    public function importFromTextFile($file, User $user)
     {
-        $user = User::find(1);
-        $urls = array_filter(file(storage_path("/app/{$name}"), FILE_IGNORE_NEW_LINES));
+        // $user = User::find(1);
+        // $urls = array_filter(file(storage_path("/app/{$name}"), FILE_IGNORE_NEW_LINES));
+        $urls = array_filter(file($file, FILE_IGNORE_NEW_LINES));
 
         foreach ($urls as $url) {
             $bookmarks[] =  $this->import($url, $user);

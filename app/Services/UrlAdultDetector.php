@@ -56,7 +56,7 @@ class UrlAdultDetector
         if (empty($scriptOutput) || $scriptOutput->error) {
             Log::error("[UrlAvailabilityChecker][check] Error detecting adult.", [
                 'url' => $url,
-                'details' => empty($scriptOutput->error) ? $scriptOutput : $scriptOutput->errorDetails
+                'details' => empty($scriptOutput) ? $scriptOutput : $scriptOutput->errorDetails
             ]);
             throw new Exception('Error detecting adult.');
         }

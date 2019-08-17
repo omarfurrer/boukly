@@ -11,6 +11,28 @@
         <v-toolbar-title>Boukly</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items>
+            <v-menu :nudge-width="100">
+                <template v-slot:activator="{ on }">
+                    <v-btn
+                        v-on="on"
+                        flat
+                    >Import<v-icon dark>arrow_drop_down</v-icon>
+                    </v-btn>
+                </template>
+
+                <v-list>
+                    <v-list-tile @click="$refs.inputUploadImport.click()">
+                        <v-list-tile-title>Text File</v-list-tile-title>
+                    </v-list-tile>
+                </v-list>
+                <input
+                    v-show="false"
+                    ref="inputUploadImport"
+                    type="file"
+                    @change="uploadImportFile"
+                    accept="text/plain"
+                >
+            </v-menu>
             <v-btn
                 @click="logout"
                 flat

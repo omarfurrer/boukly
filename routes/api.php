@@ -20,6 +20,7 @@ Route::namespace('Api')->middleware(['auth:api'])->group(function () {
 
     Route::get('bookmarks/exists', 'BookmarksController@exists');
     Route::post('bookmarks', 'BookmarksController@store');
+    Route::post('bookmarks/import', 'BookmarksController@import');
     Route::get('user/tags', 'TagsController@getUserTags');
     Route::get('user/bookmarks', 'BookmarksController@get');
 });

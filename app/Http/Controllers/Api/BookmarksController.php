@@ -53,6 +53,26 @@ class BookmarksController extends Controller
         return response()->json(['bookmark' => $bookmark]);
     }
 
+
+    /**
+     * Import bookmark from different files.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:txt|max:1024'
+        ]);
+
+        $file = $request->file('file');
+
+        $bookmark = $this->bookmarkImporter->importFromTextFile($file->getPathName(), $request->user());
+
+        return response()->json(['bookmark' => $bookmark]);
+    }
+
     /**
      * Check if user has bookmark.
      *

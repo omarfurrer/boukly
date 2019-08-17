@@ -2063,6 +2063,45 @@ __webpack_require__.r(__webpack_exports__);
     },
     toggleLeftBar: function toggleLeftBar() {
       this.$eventHub.$emit('toggle-left-bar');
+    },
+    uploadImportFile: function uploadImportFile(e) {
+      var _this = this;
+
+      var files = e.target.files;
+
+      if (files[0] !== undefined) {
+        var file = files[0]; // make sure size is below or equal 3MB
+
+        if (file.size > 1024 * 1024 * 1) {
+          alert('Maximum file size is 1MB');
+          return;
+        } // make sure type is supported
+
+
+        if (!['text/plain'].includes(file.type)) {
+          alert('File type must be txt');
+          return;
+        }
+
+        var formData = new FormData();
+        formData.append('file', file);
+        return axios.post(AppHelper.getBaseApiUrl() + 'bookmarks/import', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }).then(function (res) {
+          alert('File uploaded and bookmarks are being imported.');
+        })["catch"](function (error) {
+          if (error.response.status == 422) {
+            // Get first key to display first error in errors object
+            var errorsFirstKey = Object.keys(error.response.data.errors)[0];
+            var validationError = error.response.data.errors[errorsFirstKey][0];
+            alert(validationError);
+          }
+        }).then(function () {
+          _this.$refs.inputUploadImport.value = '';
+        });
+      }
     }
   }
 });
@@ -21875,6 +21914,70 @@ var render = function() {
           _c(
             "v-toolbar-items",
             [
+              _c(
+                "v-menu",
+                {
+                  attrs: { "nudge-width": 100 },
+                  scopedSlots: _vm._u([
+                    {
+                      key: "activator",
+                      fn: function(ref) {
+                        var on = ref.on
+                        return [
+                          _c(
+                            "v-btn",
+                            _vm._g({ attrs: { flat: "" } }, on),
+                            [
+                              _vm._v("Import"),
+                              _c("v-icon", { attrs: { dark: "" } }, [
+                                _vm._v("arrow_drop_down")
+                              ])
+                            ],
+                            1
+                          )
+                        ]
+                      }
+                    }
+                  ])
+                },
+                [
+                  _vm._v(" "),
+                  _c(
+                    "v-list",
+                    [
+                      _c(
+                        "v-list-tile",
+                        {
+                          on: {
+                            click: function($event) {
+                              return _vm.$refs.inputUploadImport.click()
+                            }
+                          }
+                        },
+                        [_c("v-list-tile-title", [_vm._v("Text File")])],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "show",
+                        rawName: "v-show",
+                        value: false,
+                        expression: "false"
+                      }
+                    ],
+                    ref: "inputUploadImport",
+                    attrs: { type: "file", accept: "text/plain" },
+                    on: { change: _vm.uploadImportFile }
+                  })
+                ],
+                1
+              ),
+              _vm._v(" "),
               _c("v-btn", { attrs: { flat: "" }, on: { click: _vm.logout } }, [
                 _vm._v("Logout")
               ])
