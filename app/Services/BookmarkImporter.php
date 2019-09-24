@@ -151,7 +151,7 @@ class BookmarkImporter
         } catch (QueryException | ProcessFailedException | ProcessTimedOutException $e) {
             //remove bookmark in case of error to perserve data consistency
             if ($isNew) {
-                $bookmark->delete();
+                // $bookmark->delete();
             }
             //log it
             return $e->getMessage();
