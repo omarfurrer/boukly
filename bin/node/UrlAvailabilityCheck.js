@@ -32,6 +32,11 @@ var userAgents = require('./userAgents.json');
             result.message = response.statusMessage;
             if (result.code < 200 || result.code > 299) {
                 result.isAvailable = false;
+                // Ignore 401 and 403 codes
+                // https://stackoverflow.com/questions/36907137/which-http-status-codes-should-we-consider-for-dead-links
+                if (result.code == 401 || result.code == 403) {
+                    result.isAvailable = true;
+                }
             }
         }
         console.log(JSON.stringify(result));
