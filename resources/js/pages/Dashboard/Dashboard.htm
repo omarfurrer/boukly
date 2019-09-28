@@ -129,6 +129,16 @@
                                         <p class="subheading mb-0">{{bookmark.title ? bookmark.title : 'No Title'}}</p>
                                     </a>
                                 </div>
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{ on }">
+                                        <v-icon
+                                            v-if="bookmark.is_dead"
+                                            class="dead-link-icon"
+                                            v-on="on"
+                                        >fas fa-skull</v-icon>
+                                    </template>
+                                    <span>Broken Link</span>
+                                </v-tooltip>
                             </v-card-title>
                         </v-card>
                     </v-flex>
